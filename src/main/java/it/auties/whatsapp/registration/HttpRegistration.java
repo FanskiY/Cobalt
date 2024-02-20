@@ -279,6 +279,7 @@ public final class HttpRegistration {
     }
 
     private void saveRegistrationStatus(Store store, Keys keys, boolean registered) {
+        System.out.println("saveRegistrationStatus " + registered);
         keys.setRegistered(registered);
         if (registered) {
             var jid = store.phoneNumber().orElseThrow().toJid();

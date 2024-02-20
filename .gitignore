@@ -1,2 +1,9 @@
 /target/
 .test/
+/.idea/.gitignore
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/src/main/java/it/auties/whatsapp/model/mobile/SixPartsKeys.java
+/.idea/vcs.xml

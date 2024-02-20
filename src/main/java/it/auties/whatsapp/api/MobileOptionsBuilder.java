@@ -103,6 +103,7 @@ public final class MobileOptionsBuilder extends OptionsBuilder<MobileOptionsBuil
      * @return a non-null optional of whatsapp
      */
     public Optional<Whatsapp> registered() {
+        System.out.println("is registered " + !keys.registered());
         if (!keys.registered()) {
             return Optional.empty();
         }

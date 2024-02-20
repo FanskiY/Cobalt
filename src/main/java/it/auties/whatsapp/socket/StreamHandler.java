@@ -1006,6 +1006,10 @@ class StreamHandler {
         schedulePing();
         socketHandler.onLoggedIn();
         if (!socketHandler.keys().registered()) {
+            System.out.println("onInitialInfo");
+            System.out.println(socketHandler.keys().registered() || socketHandler.store().clientType() == ClientType.WEB);
+            System.out.println(socketHandler.keys().registered());
+            System.out.println(socketHandler.store().clientType() == ClientType.WEB);
             socketHandler.keys().setRegistered(socketHandler.keys().registered() || socketHandler.store().clientType() == ClientType.WEB);
             return;
         }
