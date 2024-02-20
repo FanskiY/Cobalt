@@ -294,7 +294,7 @@ public class DefaultControllerSerializer implements ControllerSerializer {
                 Files.move(tempFile, outputFile, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException exception) {
-            throw new UncheckedIOException("Cannot write file", exception);
+            throw new UncheckedIOException("Cannot write file " + fileName, exception);
         }
     }
 
