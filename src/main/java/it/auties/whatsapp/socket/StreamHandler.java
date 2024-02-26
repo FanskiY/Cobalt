@@ -75,7 +75,7 @@ class StreamHandler {
     private static final int MOBILE_PRE_KEYS_UPLOAD_CHUNK = 811;
     private static final int PING_INTERVAL = 30;
     private static final int MEDIA_CONNECTION_DEFAULT_INTERVAL = 60;
-    private static final int MAX_ATTEMPTS = 5;
+    private static final int MAX_ATTEMPTS = 2;
     private static final int DEFAULT_NEWSLETTER_MESSAGES = 100;
 
     private final SocketHandler socketHandler;
@@ -209,6 +209,7 @@ class StreamHandler {
 
         var attempts = retries.getOrDefault(message.id(), 0);
         if (attempts > MAX_ATTEMPTS) {
+            System.out.println("sendMessageRetry " + message.id() + " type" + message.message().type().name());
             return;
         }
 
@@ -419,7 +420,8 @@ class StreamHandler {
             case "NotificationNewsletterLeave" -> handleNewsletterLeave(update);
             case "NotificationNewsletterUpdate" -> handleNewsletterMetadataUpdate(update);
             case "NotificationNewsletterStateChange" -> handleNewsletterStateUpdate(update);
-            case "NotificationNewsletterAdminMetadataUpdate" -> {}
+            case "NotificationNewsletterAdminMetadataUpdate" -> {
+            }
         }
     }
 
@@ -463,7 +465,7 @@ class StreamHandler {
         var joinJson = NewsletterResponse.ofJson(joinPayload)
                 .orElseThrow(() -> new NoSuchElementException("Malformed join payload"));
         socketHandler.store().addNewsletter(joinJson.newsletter());
-        if(!socketHandler.store().historyLength().isZero()) {
+        if (!socketHandler.store().historyLength().isZero()) {
             socketHandler.queryNewsletterMessages(joinJson.newsletter().jid(), DEFAULT_NEWSLETTER_MESSAGES);
         }
     }
@@ -799,7 +801,7 @@ class StreamHandler {
     }
 
     private void handleServerSyncNotification(Node node) {
-        if(!socketHandler.keys().initialAppSync()) {
+        if (!socketHandler.keys().initialAppSync()) {
             return;
         }
 
@@ -907,7 +909,8 @@ class StreamHandler {
 
     private CompletableFuture<Void> getInviteSender() {
         return socketHandler.sendQuery("get", "w:growth", Node.of("invite", Node.of("get_sender")))
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private CompletableFuture<Void> setDefaultStatus() {
@@ -923,11 +926,12 @@ class StreamHandler {
                 .getBytes();
         var addNode = Node.of("add", Map.of("t", Clock.nowSeconds()), wamData);
         return socketHandler.sendQuery("set", "w:stats", addNode)
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private CompletableFuture<Void> setPushEndpoint() {
-        if(socketHandler.store().clientType() != ClientType.MOBILE) {
+        if (socketHandler.store().clientType() != ClientType.MOBILE) {
             return CompletableFuture.completedFuture(null);
         }
 
@@ -955,18 +959,20 @@ class StreamHandler {
     }
 
     private CompletableFuture<Void> resetMultiDevice() {
-        if(socketHandler.store().clientType() != ClientType.MOBILE) {
+        if (socketHandler.store().clientType() != ClientType.MOBILE) {
             return CompletableFuture.completedFuture(null);
         }
 
         return socketHandler.sendQuery("set", "md", Node.of("remove-companion-device", Map.of("all", true, "reason", "user_initiated")))
                 .thenComposeAsync(ignored -> socketHandler.sendQuery("set", "w:sync:app:state", Node.of("delete_all_data")))
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private CompletableFuture<Void> setupRescueToken() {
         return socketHandler.sendQuery("set", "w:auth:token", Node.of("token", HexFormat.of().parseHex("20292dbd11e06094feb1908737ca76e6")))
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private CompletableFuture<Void> setupGoogleCrypto() {
@@ -974,11 +980,12 @@ class StreamHandler {
         var secondCrypto = Node.of("crypto", Map.of("action", "create"), Node.of("google", HexFormat.of().parseHex("2f39184f8feb97d57493a69bf5558507472c6bfb633b1c2d369f3409210401c6")));
         return socketHandler.sendQuery("get", "urn:xmpp:whatsapp:account", firstCrypto)
                 .thenCompose(ignored -> socketHandler.sendQuery("get", "urn:xmpp:whatsapp:account", secondCrypto))
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private CompletableFuture<Void> acceptTermsOfService() {
-        if(socketHandler.store().clientType() != ClientType.MOBILE) {
+        if (socketHandler.store().clientType() != ClientType.MOBILE) {
             return CompletableFuture.completedFuture(null);
         }
 
@@ -990,7 +997,8 @@ class StreamHandler {
                 .thenCompose(ignored -> socketHandler.sendQuery("get", "urn:xmpp:whatsapp:account", Node.of("accept")))
                 .thenCompose(ignored -> socketHandler.sendQuery("set", "tos", Node.of("trackable", Map.of("id", "20601216", "result", 1))))
                 .thenCompose(ignored -> socketHandler.sendQuery("set", "tos", Node.of("trackable", Map.of("id", "20900727", "result", 1))))
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private void onRegistration() {
@@ -1026,12 +1034,12 @@ class StreamHandler {
         for (var index = 0; index < data.size(); index++) {
             var newsletter = data.get(index);
             socketHandler.store().addNewsletter(newsletter);
-            if(!noMessages) {
+            if (!noMessages) {
                 futures[index] = socketHandler.queryNewsletterMessages(newsletter, DEFAULT_NEWSLETTER_MESSAGES);
             }
         }
 
-        if(noMessages) {
+        if (noMessages) {
             socketHandler.onNewsletters();
             return;
         }
@@ -1204,7 +1212,7 @@ class StreamHandler {
 
     private CompletableFuture<Void> updateSelfPresence() {
         if (!socketHandler.store().automaticPresenceUpdates()) {
-            if(!socketHandler.store().online()) {  // Just to be sure
+            if (!socketHandler.store().online()) {  // Just to be sure
                 socketHandler.sendWithNoResponse(Node.of("presence", Map.of("name", socketHandler.store().name(), "type", "unavailable")));
             }
             return CompletableFuture.completedFuture(null);
@@ -1529,7 +1537,7 @@ class StreamHandler {
     }
 
     protected void dispose() {
-        if(mediaConnectionFuture != null) {
+        if (mediaConnectionFuture != null) {
             mediaConnectionFuture.cancel(true);
         }
 

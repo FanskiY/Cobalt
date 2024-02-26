@@ -66,8 +66,8 @@ public record SocketRequest(String id, Object body, CompletableFuture<Node> futu
     public CompletableFuture<Node> send(SocketSession session, Keys keys, Store store, boolean prologue, boolean response) {
         var ciphered = encryptMessage(keys);
         var byteArrayOutputStream = new ByteArrayOutputStream();
-        try(var dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
-            if(prologue) {
+        try (var dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
+            if (prologue) {
                 dataOutputStream.write(getPrologueData(store));
             }
             dataOutputStream.writeInt(ciphered.length >> 16);
@@ -75,16 +75,20 @@ public record SocketRequest(String id, Object body, CompletableFuture<Node> futu
             dataOutputStream.write(ciphered);
             session.sendBinary(byteArrayOutputStream.toByteArray())
                     .thenRunAsync(() -> onSendSuccess(store, response))
-                    .exceptionallyAsync(this::onSendError);
+                    .exceptionallyAsync(throwable -> {
+                        System.out.println("send media store error " + store.name());
+                        return onSendError(throwable);
+                    });
             return future;
-        }catch (IOException exception) {
+        } catch (IOException exception) {
             throw new RequestException(exception);
         }
     }
 
     public CompletableFuture<Void> sendWithNoResponse(SocketSession session, Keys keys, Store store) {
         return send(session, keys, store, false, false)
-                .thenRun(() -> {});
+                .thenRun(() -> {
+                });
     }
 
     private byte[] getPrologueData(Store store) {
@@ -107,7 +111,7 @@ public record SocketRequest(String id, Object body, CompletableFuture<Node> futu
         return switch (encodedBody) {
             case byte[] bytes -> bytes;
             case Node node -> {
-                try(var encoder = new BinaryEncoder()) {
+                try (var encoder = new BinaryEncoder()) {
                     yield encoder.encode(node);
                 } catch (IOException exception) {
                     throw new UncheckedIOException(exception);
