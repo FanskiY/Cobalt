@@ -1352,7 +1352,7 @@ class StreamHandler {
                     scheduleMediaConnection(result.ttl());
                 })
                 .exceptionallyAsync(throwable -> {
-                    createMediaConnection(tries + 1, throwable);
+//                    createMediaConnection(tries + 1, throwable);
                     return null;
                 });
     }
