@@ -74,14 +74,10 @@ public record SocketRequest(String id, Object body, CompletableFuture<Node> futu
             dataOutputStream.writeShort(65535 & ciphered.length);
             dataOutputStream.write(ciphered);
             session.sendBinary(byteArrayOutputStream.toByteArray())
-                    .thenRunAsync(() -> onSendSuccess(store, response))
-                    .exceptionallyAsync(throwable -> {
-                        System.out.println("send media store error " + store.name());
-                        return onSendError(throwable);
-                    });
+                    .thenRunAsync(() -> onSendSuccess(store, response));
             return future;
-        } catch (IOException exception) {
-            throw new RequestException(exception);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
