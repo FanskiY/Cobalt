@@ -1329,7 +1329,7 @@ class StreamHandler {
         if (tries >= MAX_ATTEMPTS) {
             socketHandler.store().setMediaConnection(null);
             socketHandler.handleFailure(MEDIA_CONNECTION, error);
-            scheduleMediaConnection(MEDIA_CONNECTION_DEFAULT_INTERVAL);
+//            scheduleMediaConnection(MEDIA_CONNECTION_DEFAULT_INTERVAL);
             return;
         }
 
@@ -1349,7 +1349,7 @@ class StreamHandler {
                 })
                 .thenAcceptAsync(result -> {
                     socketHandler.store().setMediaConnection(result);
-                    scheduleMediaConnection(result.ttl());
+//                    scheduleMediaConnection(result.ttl());
                 })
                 .exceptionallyAsync(throwable -> {
 //                    createMediaConnection(tries + 1, throwable);
